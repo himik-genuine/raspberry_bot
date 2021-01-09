@@ -1,0 +1,94 @@
+module GetSystemInfo
+  def cpu_temp
+    (File.read('/sys/class/thermal/thermal_zone0/temp').to_f / 1000).round(1)
+  end
+
+  def cpu_freq
+    (File.read('/sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq').to_f / 1000000).round(1)
+  end
+
+  def cpu_freq_max
+    (File.read('/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq').to_f / 1000000).round(1)
+  end
+
+  def cpu_freq_min
+    (File.read('/sys/devices/system/cpu/cpufreq/policy0/scaling_min_freq').to_f / 1000000).round(1)
+  end
+
+  def os_version
+    os = Settings.read_cfg('/etc/os-release')
+    "#{os['NAME'].gsub('"', '')} #{os['VERSION'].gsub('"', '')}"
+  end
+
+  def kernel_version
+    File.read('/proc/version').split[2]
+  end
+
+  def kernel_arch
+    `uname -m`
+  end
+
+  def load_average
+    File.read('/proc/loadavg').split
+  end
+
+  def memory_info
+    mem = IO.readlines('/proc/meminfo')
+            .map(&:chomp)
+    total = mem.select { |line| line.match?('MemTotal') }[0]
+               .split[1].to_i / 1024
+    avail = mem.select { |line| line.match?('MemAvailable') }[0]
+               .split[1].to_i / 1024
+    used = total - avail
+    percents_used = used * 100 / total
+    { 'total' => total, 'available' => avail, 'used' => used, 'percents_used' => percents_used }
+  end
+#/proc/loadavg - статистика по CPU
+  def uptime
+    uptm = File.read('/proc/uptime')
+               .split('.')[0].to_i
+    days = uptm / 86400
+    hours = (uptm - 86400 * days) / 3600
+    minutes = (uptm - (86400 * days + 3600 * hours)) / 60
+    seconds = (uptm - (86400 * days + 3600 * hours + 60 * minutes))
+
+    [days, hours, minutes, seconds]
+  end
+
+  def summary
+    memory = memory_info
+    uptm = uptime
+    monitoring = if @bot.settings['monitoring']
+                   'Active'
+                 else
+                   'Disabled'
+                 end
+    one_m, five_m, fifteen_m, processes = load_average
+    temp = @bot.settings['cpu_temperature'] || 'Disabled'
+    mem = @bot.settings['used_memory'] || 'Disabled'
+    text = "Bot on \"#{@bot.settings['host']}\"\n"
+    text += "Bot download directory: #{@bot.settings['download_directory']}\n"
+    text += "\nOS: #{os_version}\n"
+    text += "Kernel: #{kernel_version}\n"
+    text += "Kernel architecture: #{kernel_arch}\n"
+    text += "Processes running: #{processes.split('/')[0]} of #{processes.split('/')[1]} total.\n"
+    text += "Load average: #{one_m} #{five_m} #{fifteen_m}\n"
+    text += "\nMonitoring module: #{monitoring}\n"
+    text += "CPU temperature threshold: #{temp}#{' °C' if @bot.settings['cpu_temperature']}\n" if @bot.settings['monitoring']
+    text += "Memory usage threshold: #{mem}#{'%' if @bot.settings['used_memory']}\n" if @bot.settings['monitoring']
+    if @bot.settings['monitoring']
+      text += "\nCPU temperature status: #{'OK' if @bot.states['temperature_state']}#{'Problem!' unless @bot.states['temperature_state']}\n" if @bot.settings['cpu_temperature']
+      text += "Memory usage status: #{'OK' if @bot.states['used_memory_state']}#{'Problem!' unless @bot.states['used_memory_state']}\n" if @bot.settings['used_memory']
+    end
+    text += "\nMaximum CPU frequency: #{cpu_freq_max} GHz\n"
+    text += "Minimum CPU frequency: #{cpu_freq_min} GHz\n"
+    text += "Current CPU frequency: #{cpu_freq} GHz\n"
+    text += "\nCurrent CPU temperature: #{cpu_temp} °C\n"
+    text += "\nTotal memory: #{memory['total']} Mb\n"
+    text += "Available memory: #{memory['available']} Mb\n"
+    text += "Used memory: #{memory['used']} Mb\n"
+    text += "#{memory['percents_used']}% of memory used.\n"
+    text += "\nUptime: #{uptm[0]} day#{'s' if uptm[0] > 1 || uptm[0] == 0} #{uptm[1]} h #{uptm[2]} min #{uptm[3]} sec\n"
+    text
+  end
+end
