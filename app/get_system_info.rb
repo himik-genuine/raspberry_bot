@@ -56,6 +56,7 @@ module GetSystemInfo
   end
 
   def summary
+    curr_freq = cpu_freq
     memory = memory_info
     uptm = uptime
     monitoring = if @bot.settings['monitoring']
@@ -82,7 +83,7 @@ module GetSystemInfo
     end
     text += "\nMaximum CPU frequency: #{cpu_freq_max} GHz\n"
     text += "Minimum CPU frequency: #{cpu_freq_min} GHz\n"
-    text += "Current CPU frequency: #{cpu_freq} GHz\n"
+    text += "Current CPU frequency: #{curr_freq} GHz\n"
     text += "\nCurrent CPU temperature: #{cpu_temp} °C\n"
     text += "\nTotal memory: #{memory['total']} Mb\n"
     text += "Available memory: #{memory['available']} Mb\n"
