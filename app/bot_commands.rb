@@ -19,8 +19,8 @@ module BotCommands
     return 'Bot shutdown.' if help == true
 
     send_message(chat_id, 'Repite this command in 10 seconds to stop the bot. Since stopped, bot cant be up again via telegram!') unless @off
-    send_message(chat_id, 'Bot stopped.') if @off
     @run = false if @off
+    send_message(chat_id, 'Bot stopped.') if @off
     Thread.new { @off = true; sleep 10; @off = false; send_message(chat_id, '"Off" command canceled.') }
   end
 
