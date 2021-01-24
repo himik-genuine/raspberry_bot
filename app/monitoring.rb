@@ -7,8 +7,8 @@ class Monitoring
     @bot = bot
   end
 
-  def send_message(message)
-    @bot.settings['users'].each { |user| @bot.message(user, message) }
+  def message(message)
+    @bot.settings['users'].each { |user| @bot.send_message(user, message) }
   end
 
   def monitoring(comm)
@@ -80,11 +80,11 @@ class Monitoring
   def check_mem(mem_sent)
     mem = memory_info['percents_used']
     if mem > @bot.settings['used_memory'] && !mem_sent
-      send_message("On \"#{@bot.settings['host']}\" #{mem}% memory used, wile treshold is #{@bot.settings['used_memory']}%!")
+      message("On \"#{@bot.settings['host']}\" #{mem}% memory used, wile treshold is #{@bot.settings['used_memory']}%!")
       mem_sent = true
     end
     if mem < (@bot.settings['used_memory'] - 5) && mem_sent
-      send_message("On \"#{@bot.settings['host']}\" memory usage drropped to #{mem}%.")
+      message("On \"#{@bot.settings['host']}\" memory usage drropped to #{mem}%.")
       mem_sent = false
     end
     mem_sent
@@ -93,11 +93,11 @@ class Monitoring
   def check_temp(temp_sent)
     cpu = cpu_temp
     if cpu > @bot.settings['cpu_temperature'] && !temp_sent
-      send_message("On \"#{@bot.settings['host']}\" CPU temperature hit #{cpu} °C, wile treshold is #{@bot.settings['cpu_temperature']} °C!")
+      message("On \"#{@bot.settings['host']}\" CPU temperature hit #{cpu} °C, wile treshold is #{@bot.settings['cpu_temperature']} °C!")
       temp_sent = true
     end
     if cpu < (@bot.settings['cpu_temperature'] - 5) && temp_sent
-      send_message("On \"#{@bot.settings['host']}\" CPU temperature drropped to #{cpu} °C.")
+      message("On \"#{@bot.settings['host']}\" CPU temperature drropped to #{cpu} °C.")
       temp_sent = false
     end
     temp_sent
