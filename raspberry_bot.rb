@@ -33,6 +33,11 @@ class Bot
   def start_bot
     while @run
       updates = @tg.session('getUpdates', { 'timeout' => @settings['api_timeout'] })
+      unless updates['ok']
+        puts "Something go wrong: #{updates}"
+        sleep 20
+        next
+      end
       next if updates['result'].empty?
 
       updates['result'].each do |update|

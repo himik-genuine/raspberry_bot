@@ -6,7 +6,7 @@ module BotCommands
     when 'temp'
       send_message(chat_id, "#{@mon.cpu_temp} °C")
     when 'freq'
-      send_message(chat_id, "#{@mon.cpu_freq} GHz")
+      send_message(chat_id, "Current frequency: #{@mon.cpu_freq} MHz\n\nCPU frequency statistics:\n#{@mon.cpu_freqstat}")
     when 'uptime'
       uptm = @mon.uptime
       send_message(chat_id, "#{uptm[0]} Days #{uptm[1]} Hours #{uptm[2]} Minutes #{uptm[3]} Seconds")
@@ -28,8 +28,7 @@ module BotCommands
     return 'Monitoring module start\stop, thresholds set.' if help == true
 
     if %w[start stop temp mem].include?(help.split[0])
-      res = @mon.monitoring(help)
-      send_message(chat_id, res)
+      send_message(chat_id, @mon.monitoring(help))
     elsif help.split[0].nil?
       send_message(chat_id, mon_state)
     else

@@ -4,15 +4,15 @@ module GetSystemInfo
   end
 
   def cpu_freq
-    (File.read('/sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq').to_f / 1000000).round(1)
+    (File.read('/sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq').to_i / 1000).round(1)
   end
 
   def cpu_freq_max
-    (File.read('/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq').to_f / 1000000).round(1)
+    (File.read('/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq').to_i / 1000).round(1)
   end
 
   def cpu_freq_min
-    (File.read('/sys/devices/system/cpu/cpufreq/policy0/scaling_min_freq').to_f / 1000000).round(1)
+    (File.read('/sys/devices/system/cpu/cpufreq/policy0/scaling_min_freq').to_i / 1000).round(1)
   end
 
   def os_version
@@ -43,7 +43,7 @@ module GetSystemInfo
     percents_used = used * 100 / total
     { 'total' => total, 'available' => avail, 'used' => used, 'percents_used' => percents_used }
   end
-#/proc/loadavg - статистика по CPU
+
   def uptime
     uptm = File.read('/proc/uptime')
                .split('.')[0].to_i
@@ -53,6 +53,25 @@ module GetSystemInfo
     seconds = (uptm - (86400 * days + 3600 * hours + 60 * minutes))
 
     [days, hours, minutes, seconds]
+  end
+
+  def cpu_freqstat
+    frq = File.read('/sys/devices/system/cpu/cpufreq/policy0/stats/time_in_state')
+              .split("\n")
+    cpu_time = frq.map { |line| line.split[1] }
+                  .map(&:to_f)
+    cpu_frq = frq.map { |line| line.split[0] }
+                 .map(&:to_i)
+    time_sum = cpu_time.sum
+    percents = cpu_time.map { |time| (time * 100 / time_sum).round(2) }
+    res = []
+
+    frq.each_with_index do |_val, index|
+      fq = cpu_frq[index] / 1000
+      space = ' ' * (6 - percents[index].to_s.size)
+      res << "#{' ' if fq < 1000}#{cpu_frq[index] / 1000} MGz: #{percents[index]}%#{space}- #{cpu_time[index].to_i}\n"
+    end
+    res.join
   end
 
   def summary
@@ -81,9 +100,9 @@ module GetSystemInfo
       text += "\nCPU temperature status: #{'OK' if @bot.states['temperature_state']}#{'Problem!' unless @bot.states['temperature_state']}\n" if @bot.settings['cpu_temperature']
       text += "Memory usage status: #{'OK' if @bot.states['used_memory_state']}#{'Problem!' unless @bot.states['used_memory_state']}\n" if @bot.settings['used_memory']
     end
-    text += "\nMaximum CPU frequency: #{cpu_freq_max} GHz\n"
-    text += "Minimum CPU frequency: #{cpu_freq_min} GHz\n"
-    text += "Current CPU frequency: #{curr_freq} GHz\n"
+    text += "\nMaximum CPU frequency: #{cpu_freq_max} MHz\n"
+    text += "Minimum CPU frequency: #{cpu_freq_min} MHz\n"
+    text += "Current CPU frequency: #{curr_freq} MHz\n"
     text += "\nCurrent CPU temperature: #{cpu_temp} °C\n"
     text += "\nTotal memory: #{memory['total']} Mb\n"
     text += "Available memory: #{memory['available']} Mb\n"
