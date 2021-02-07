@@ -13,8 +13,8 @@ class TelegramApi
 
   private
 
-  def telegram_send(uri, rq_type, body)
-    uri = URI(uri)
+  def telegram_send(url, rq_type, body)
+    uri = URI(url)
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = uri.scheme == 'https'
     klass = Object.const_get "Net::HTTP::#{rq_type}"

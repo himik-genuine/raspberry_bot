@@ -69,7 +69,7 @@ module GetSystemInfo
     frq.each_with_index do |_val, index|
       fq = cpu_frq[index] / 1000
       space = ' ' * (6 - percents[index].to_s.size)
-      res << "#{' ' if fq < 1000}#{cpu_frq[index] / 1000} MGz: #{percents[index]}%#{space}- #{cpu_time[index].to_i}\n"
+      res << "#{' ' if fq < 1000}#{cpu_frq[index] / 1000} MHz: #{percents[index]}%#{space}- #{cpu_time[index].to_i}\n"
     end
     res.join
   end
