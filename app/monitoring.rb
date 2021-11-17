@@ -84,7 +84,7 @@ class Monitoring
       mem_sent = true
     end
     if mem < (@bot.settings['used_memory'] - 5) && mem_sent
-      message("On \"#{@bot.settings['host']}\" memory usage drropped to #{mem}%.")
+      message("On \"#{@bot.settings['host']}\" memory usage dropped to #{mem}%.")
       mem_sent = false
     end
     mem_sent
@@ -97,7 +97,7 @@ class Monitoring
       temp_sent = true
     end
     if cpu < (@bot.settings['cpu_temperature'] - 5) && temp_sent
-      message("On \"#{@bot.settings['host']}\" CPU temperature drropped to #{cpu} °C.")
+      message("On \"#{@bot.settings['host']}\" CPU temperature dropped to #{cpu} °C.")
       temp_sent = false
     end
     temp_sent
