@@ -20,3 +20,13 @@ Allows you to monitor CPU temperature and RAM usage. Allows to execute shell com
 ### user_commands.cfg format:
 
 /bot_command#any_shell_command, parameters and pipelines are valid.
+
+- Shows current temp /temp#/opt/vc/bin/vcgencmd measure_temp
+- Lets you know if your power supply is ok /thr#/opt/vc/bin/vcgencmd get_throttled
+- Shows how much memory is split between the CPU (arm) and GPU /split#vcgencmd get_mem arm && vcgencmd get_mem gpu
+
+For the optional command you need to install some extra packages just remove them form user_commands.cfg if not needed
+- sudo apt-get install nmap 
+- sudo apt-get install speedtest-cli
+
+

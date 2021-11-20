@@ -34,7 +34,7 @@ class Bot
     while @run
       updates = @tg.session('getUpdates', { 'timeout' => @settings['api_timeout'] })
       unless updates['ok']
-        puts "Something go wrong: #{updates}"
+        puts "Something has gone wrong: #{updates}"
         sleep 20
         next
       end
