@@ -7,6 +7,7 @@ require './app/bot_commands'
 require './app/message_handler'
 require './app/monitoring'
 require './app/settings'
+require 'shellwords'
 
 class Bot
   include PostOffice
