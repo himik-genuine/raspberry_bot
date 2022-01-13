@@ -59,14 +59,14 @@ module BotCommands
     end
   end
 
-  def shell(chat_id, help)
+  def shell(chat_id, help, command = "")
     return 'Execute shell command.' if help == true
 
     if help == ''
       send_message(chat_id, 'Command was empty!')
       return
     end
-    exec_shell(chat_id, help)
+    exec_shell(chat_id, help, command)
   end
 
   def help(chat_id, help = false)
@@ -135,10 +135,11 @@ module BotCommands
     text
   end
 
-  def exec_shell(chat_id, cmd)
+  def exec_shell(chat_id, cmd, command = "")
     send_message(chat_id, "Starting execution: #{cmd}")
     Thread.new do
       begin
+        cmd = cmd.gsub("$@", "#{command}".shellescape);
         result = Timeout.timeout(@settings['commands_timeout']) { `#{cmd} 2>&1` }
       rescue Errno::ENOENT
         result = 'Execution failed, no such file or directory!'

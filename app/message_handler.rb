@@ -17,7 +17,7 @@ module MessageHandler
   def command(message)
     command = message['text']
     if @methods['user_commands_keys'].include?(command.split[0])
-      shell(message['chat']['id'], @methods['user_commands'][command.split[0]])
+      shell(message['chat']['id'], @methods['user_commands'][command.split[0]], command.split[1..-1].join(' '))
     elsif @methods['defined_commands'].include?(command.split[0].gsub('/', ''))
       send(command.split[0].gsub('/', ''), message['chat']['id'], command.split[1..-1].join(' '))
     else
