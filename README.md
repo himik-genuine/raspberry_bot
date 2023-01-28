@@ -29,4 +29,6 @@ For the optional command you need to install some extra packages just remove the
 - sudo apt-get install nmap 
 - sudo apt-get install speedtest-cli
 
+You might also need to run "bundle install" from the main directory to get all the reqiured gems to make it run.
+
 
